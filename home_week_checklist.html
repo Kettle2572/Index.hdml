@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Home Week Checklist</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:#f2f2f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;padding-bottom:80px;}
+.header{background:#fff;border-bottom:1px solid #e5e5ea;padding:14px 16px 10px;position:sticky;top:0;z-index:100;}
+.header h1{font-size:17px;font-weight:700;color:#000;letter-spacing:-0.3px;}
+.header-sub{font-size:12px;color:#8e8e93;margin-top:2px;}
+.day-nav{display:flex;gap:6px;padding:12px 16px;background:#fff;border-bottom:1px solid #e5e5ea;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.day-nav::-webkit-scrollbar{display:none;}
+.day-btn{flex-shrink:0;padding:7px 14px;border-radius:20px;border:1.5px solid #d1d1d6;background:#fff;color:#3c3c43;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.day-btn.active{background:#007aff;border-color:#007aff;color:#fff;}
+.day-btn.complete{background:#34c759;border-color:#34c759;color:#fff;}
+.day-btn.partial{border-color:#ff9500;color:#ff9500;}
+.progress-wrap{padding:12px 16px 8px;}
+.progress-row{display:flex;justify-content:space-between;font-size:12px;color:#8e8e93;margin-bottom:6px;}
+.progress-track{height:6px;background:#e5e5ea;border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:#34c759;border-radius:3px;transition:width 0.4s ease;}
+.content{padding:0 16px;}
+.section{background:#fff;border-radius:12px;margin-bottom:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.section-hdr{padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;border-bottom:1px solid #f2f2f7;}
+.sh-mob{background:#fff8e1;color:#8b6000;}
+.sh-lift{background:#e8f4fd;color:#005b9a;}
+.sh-run{background:#e8f5e9;color:#1b5e20;}
+.sh-rest{background:#f5f5f5;color:#555;}
+.sh-check{background:#fce4ec;color:#880e4f;}
+.sub-hdr{padding:7px 14px 4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#8e8e93;background:#f9f9fb;border-bottom:1px solid #f2f2f7;}
+.check-item{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;border-bottom:1px solid #f2f2f7;cursor:pointer;user-select:none;transition:background 0.1s;-webkit-user-select:none;}
+.check-item:last-child{border-bottom:none;}
+.check-item:active{background:#f2f2f7;}
+.check-item.done{opacity:0.45;}
+.check-box{width:22px;height:22px;border-radius:6px;border:1.5px solid #c7c7cc;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all 0.15s;}
+.check-item.done .check-box{background:#34c759;border-color:#34c759;}
+.check-tick{display:none;color:#fff;font-size:13px;font-weight:700;line-height:1;}
+.check-item.done .check-tick{display:block;}
+.check-text{font-size:14px;color:#000;line-height:1.4;}
+.check-item.done .check-text{text-decoration:line-through;color:#8e8e93;}
+.phase-item{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;border-bottom:1px solid #f2f2f7;cursor:pointer;user-select:none;-webkit-user-select:none;}
+.phase-item:last-child{border-bottom:none;}
+.phase-item:active{background:#f2f2f7;}
+.phase-item.done{opacity:0.45;}
+.phase-item.done .check-text{text-decoration:line-through;color:#8e8e93;}
+.phase-item.done .check-box{background:#34c759;border-color:#34c759;}
+.phase-item.done .check-tick{display:block;}
+.score-row{display:flex;flex-direction:column;padding:10px 14px;border-bottom:1px solid #f2f2f7;}
+.score-row:last-child{border-bottom:none;}
+.score-label{font-size:14px;color:#000;margin-bottom:8px;font-weight:500;}
+.score-btns{display:flex;gap:5px;flex-wrap:wrap;}
+.score-btn{width:30px;height:30px;border-radius:8px;border:1.5px solid #e5e5ea;background:#f9f9fb;color:#3c3c43;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;}
+.score-btn.sel-ok{background:#34c759;border-color:#34c759;color:#fff;}
+.score-btn.sel-warn{background:#ff9500;border-color:#ff9500;color:#fff;}
+.score-btn.sel-bad{background:#ff3b30;border-color:#ff3b30;color:#fff;}
+.reset-btn{display:block;width:100%;padding:12px;border:1.5px solid #e5e5ea;border-radius:12px;background:#fff;color:#8e8e93;font-size:14px;cursor:pointer;font-family:inherit;margin-top:4px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Home Week Checklist</h1>
+  <div class="header-sub" id="hdrDate"></div>
+</div>
+<div class="day-nav" id="dayNav"></div>
+<div class="progress-wrap">
+  <div class="progress-row"><span id="progLabel">0 of 0 done</span><span id="progPct">0%</span></div>
+  <div class="progress-track"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+</div>
+<div class="content" id="content"></div>
+
+<script>
+const DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+const MOB=[
+  '90/90 Wall Breathing — 8 breaths',
+  'Cat-Cow — 10 reps (segmental, slow)',
+  'Thoracic Rotation — 8 each side + 4 extra on tight side',
+  'Foam Roller T-Spine Extension — 5 segments x 3 reps',
+  '90/90 Hip Switches — 8 switches (hold left IR 5 sec each)',
+  'Hip Flexor Stretch — 45 sec right / 45 sec left / 45 sec left again (pulsing)',
+  'Figure-4 Stretch — 60 sec left / 45 sec right',
+  'Nerve Glide + Hamstring Stretch — LEFT: 8 pumps + 30 sec / RIGHT: 6 pumps + 20 sec',
+  'Inchworm Walkout — 6 reps',
+  'SL Glute Bridge — 6 left (10 sec hold) / 5 right',
+  'Banded Lateral Walk — 12 steps each direction',
+  'SL Balance Eyes Closed — 2 x 30 sec each side',
+  'Chin Tucks — 8 reps x 5 sec hold',
+  'Neck CARs — 3 circles each direction',
+  'Supine Spinal Twist — 60 sec left / 45 sec right',
+];
+const LBA_WU=[
+  'Bike or rower — 3 min easy',
+  '90/90 Breathing — 5 breaths',
+  'Cat-Cow — 8 reps',
+  'Banded Clamshell — 12 each side (left first)',
+  'BW Glute Bridge — 12 reps (3 sec squeeze)',
+  'BW Single-Leg RDL — 6 each side (LEFT FIRST)',
+  'Leg Swings — 8 each direction, each leg',
+  'Goblet Squat Hold — 20 sec at bottom',
+];
+const LBA_LIFT=[
+  'Barbell Hip Thrust — 4 x 8-10 (tempo 2-2-2-0)',
+  'Single-Leg RDL (DB) — 3 x 8-10 each, LEFT FIRST (tempo 3-1-1-0)',
+  'Nordic Hamstring Curl — 3 x 5-8 (5 sec lowering)',
+  'Bulgarian Split Squat — 3 x 8-10 each, LEFT FIRST (tempo 2-1-1-0)',
+  'Banded Clamshell — 3 x 15 each (tempo 1-2-1-0)',
+  'Single-Leg Calf Raise — 3 x 12-15 each, LEFT FIRST (tempo 2-2-2-0)',
+  'McGill Big 3 x2: Curl-Up 5 x 10 sec / Side Plank 20-30 sec each (left first) / Bird Dog 5 x 8 sec each',
+];
+const UBA_WU=[
+  'Bike or rower — 3 min easy',
+  'Foam Roller T-Spine Extension — 8 reps',
+  'Open Books — 6 each side',
+  'Band Pull-Aparts — 15 reps',
+  'Shoulder CARs — 5 each direction, each arm',
+  'Push-Ups — 8 reps',
+];
+const UBA_LIFT=[
+  'Barbell Bench Press — 4 x 6-8 (tempo 2-1-1-0)',
+  'Standing Overhead Press — 3 x 8-10 (tempo 2-0-1-0)',
+  'Incline DB Press — 3 x 10-12 (tempo 2-1-1-0)',
+  'Face Pulls — 3 x 15-20 (tempo 1-2-1-0)',
+  'Dips or Pushdowns — 3 x 10-12 (tempo 2-0-1-0)',
+  'Pallof Press — 3 x 10-12 each side (tempo 2-2-2-0)',
+  'Dead Bug — 3 x 8 each side (tempo 3-1-3-0)',
+];
+const RUN_WU=[
+  'Walk — 2 min',
+  'Banded Lateral Walk — 10 steps each direction',
+  'Banded Glute Bridge — 10 reps',
+  'SL Balance — 15 sec each foot',
+  'Leg Swings — 10 front/back + 10 side/side each leg (2 extra left F/B)',
+  'Walking Lunges with Rotation — 5 each leg',
+  'A-Skips — 2 x 20m',
+  'Build-Up Strides — 3 x 60-80m (walk back between)',
+];
+const LBB_LIFT=[
+  'Goblet Squat (Ph1) / Barbell Squat (Ph2+) — 4 x 6-8 (tempo 3-1-1-0)',
+  'Step-Up (knee height box) — 3 x 10-12 each, LEFT FIRST (tempo 2-1-2-0)',
+  'Single-Leg Leg Press — 3 x 10-12 each, LEFT FIRST (tempo 2-1-1-0)',
+  'Walking Lunges (DB) — 3 x 10-12 each (tempo 2-0-1-0)',
+  'Copenhagen Adductor — 3 x 8-10 each, LEFT FIRST (tempo 2-1-2-0)',
+  'Pallof Press with Rotation — 3 x 8 each side (tempo 2-2-2-2)',
+  'Hanging Leg Raise — 3 x 10-12 (tempo 2-0-2-0)',
+];
+const UBB_LIFT=[
+  'Barbell Bent-Over Row — 4 x 6-8 (tempo 2-1-2-0)',
+  'Pull-Ups or Lat Pulldown — 3 x 8-10 (tempo 1-0-2-0)',
+  'Seated Cable Row — 3 x 10-12 (tempo 2-2-1-0)',
+  'Single-Arm DB Row — 3 x 10-12 each (tempo 2-1-1-0)',
+  'Bicep Curls — 3 x 10-12 (tempo 2-0-1-0)',
+  'Face Pulls — 3 x 15-20 (tempo 1-2-1-0)',
+  "Farmer's Walks — 3 x 30-40m",
+];
+const TUE_RUN=['Phase 1: 5-6 km easy @ 5:50-6:30/km','Phase 2: 6-7 km easy @ 5:50-6:30/km','Phase 3: 6-7 km easy @ Zone 2','Phase 4: 6-8 km easy @ Zone 2'];
+const FRI_RUN=['Phase 1: NO RUN (only 2 runs this phase — Tue + Sat)','Phase 2: 5-6 km easy + 4 x 100m strides after','Phase 3: TEMPO — 2km warm-up / 4km @ 4:50-5:15/km / 2km cool-down','Phase 4 Wk A: TEMPO — 2km warm-up / 5-6km @ Zone 4 / 2km cool-down','Phase 4 Wk B: INTERVALS — 2km warm-up / 6x800m @ 4:20-4:50/km (90s jog rest) / 2km cool-down'];
+const SAT_RUN=['Phase 1: 8-10 km easy @ 6:00-6:30/km','Phase 2: 10-12 km easy @ 6:00-6:30/km','Phase 3: 12-15 km easy @ Zone 2','Phase 4: 13-18 km easy @ Zone 2'];
+const SELF_CHECK=[{label:'Sleep quality',key:'sleep'},{label:'Fatigue',key:'fatigue'},{label:'Left hamstring pain',key:'ham'},{label:'Lower back pain',key:'back'},{label:'Left knee pain',key:'knee'},{label:'Neck pain',key:'neck'}];
+
+function kid(d,g,i){return 'hw_'+d+'_'+g+'_'+i;}
+function sk(d,m){return 'hw_score_'+d+'_'+m;}
+function isOn(id){return localStorage.getItem(id)==='1';}
+function scoreVal(k){const v=localStorage.getItem(k);return v?parseInt(v):null;}
+
+function toggle(id){isOn(id)?localStorage.removeItem(id):localStorage.setItem(id,'1');render();renderNav();}
+function setScore(k,v){localStorage.setItem(k,String(v));render();}
+
+function getDayIds(d){
+  const ids=[];
+  const add=(g,arr)=>arr.forEach((_,i)=>ids.push(kid(d,g,i)));
+  if(d===0){add('mob',MOB);add('lbawu',LBA_WU);add('lbalift',LBA_LIFT);}
+  else if(d===1){add('runwu',RUN_WU);add('run',TUE_RUN);add('ubawu',UBA_WU);add('ubalift',UBA_LIFT);}
+  else if(d===2){add('mob',MOB);ids.push(kid(d,'active',0));}
+  else if(d===3){add('mob',MOB);add('lbbwu',LBA_WU);add('lbblift',LBB_LIFT);}
+  else if(d===4){add('runwu',RUN_WU);add('run',FRI_RUN);add('ubbwu',UBA_WU);add('ubblift',UBB_LIFT);}
+  else if(d===5){add('runwu',RUN_WU);add('run',SAT_RUN);add('mob',MOB);}
+  else if(d===6){add('mob',MOB);ids.push(kid(d,'rest',0));}
+  return ids;
+}
+function getDayProg(d){const ids=getDayIds(d);const done=ids.filter(id=>isOn(id)).length;return{done,total:ids.length};}
+
+let cur=(()=>{let d=new Date().getDay();return d===0?6:d-1;})();
+
+function renderNav(){
+  const nav=document.getElementById('dayNav');
+  nav.innerHTML='';
+  DAYS.forEach((name,i)=>{
+    const{done,total}=getDayProg(i);
+    const btn=document.createElement('button');
+    btn.className='day-btn'+(i===cur?' active':done===total&&total>0?' complete':done>0?' partial':'');
+    btn.textContent=name.slice(0,3);
+    btn.onclick=()=>{cur=i;renderNav();render();};
+    nav.appendChild(btn);
+  });
+}
+
+function cItem(text,id,isPhase){
+  const done=isOn(id);
+  const cls=(isPhase?'phase-item':'check-item')+(done?' done':'');
+  return `<div class="${cls}" onclick="toggle('${id}')"><div class="check-box"><span class="check-tick">✓</span></div><div class="check-text">${text}</div></div>`;
+}
+
+function section(hdr,hdrCls,blocks){
+  let h=`<div class="section"><div class="section-hdr ${hdrCls}">${hdr}</div>`;
+  blocks.forEach(({sub,items,group,isPhase})=>{
+    if(sub)h+=`<div class="sub-hdr">${sub}</div>`;
+    items.forEach((t,i)=>h+=cItem(t,kid(cur,group,i),isPhase));
+  });
+  return h+`</div>`;
+}
+
+function render(){
+  const{done,total}=getDayProg(cur);
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('progLabel').textContent=done+' of '+total+' done';
+  document.getElementById('progPct').textContent=pct+'%';
+  document.getElementById('progFill').style.width=pct+'%';
+
+  let h='';
+  const d=cur;
+
+  if(d===0){
+    h+=section('Morning mobility','sh-mob',[{items:MOB,group:'mob'}]);
+    h+=section('Lower Body A — hamstring & glute','sh-lift',[
+      {sub:'Warm-up',items:LBA_WU,group:'lbawu'},
+      {sub:'Lifting',items:LBA_LIFT,group:'lbalift'},
+    ]);
+  } else if(d===1){
+    h+=section('Morning — run','sh-run',[{sub:'Pre-run warm-up',items:RUN_WU,group:'runwu'}]);
+    h+=`<div class="section"><div class="section-hdr sh-run">Pick your run phase</div>`;
+    TUE_RUN.forEach((t,i)=>h+=cItem(t,kid(d,'run',i),true));
+    h+=`</div>`;
+    h+=section('Afternoon — Upper Body A','sh-lift',[
+      {sub:'Warm-up',items:UBA_WU,group:'ubawu'},
+      {sub:'Lifting',items:UBA_LIFT,group:'ubalift'},
+    ]);
+  } else if(d===2){
+    h+=section('Morning mobility','sh-mob',[{items:MOB,group:'mob'}]);
+    h+=`<div class="section"><div class="section-hdr sh-rest">Active recovery</div>`;
+    h+=cItem('30-40 min low intensity: walk / swim / easy bike / yoga — if breathing hard, slow down',kid(d,'active',0));
+    h+=`</div>`;
+  } else if(d===3){
+    h+=section('Morning mobility','sh-mob',[{items:MOB,group:'mob'}]);
+    h+=section('Lower Body B — quad & hip','sh-lift',[
+      {sub:'Warm-up',items:LBA_WU,group:'lbbwu'},
+      {sub:'Lifting',items:LBB_LIFT,group:'lbblift'},
+    ]);
+  } else if(d===4){
+    h+=section('Morning — run','sh-run',[{sub:'Pre-run warm-up',items:RUN_WU,group:'runwu'}]);
+    h+=`<div class="section"><div class="section-hdr sh-run">Pick your run phase</div>`;
+    FRI_RUN.forEach((t,i)=>h+=cItem(t,kid(d,'run',i),true));
+    h+=`</div>`;
+    h+=section('Afternoon — Upper Body B','sh-lift',[
+      {sub:'Warm-up',items:UBA_WU,group:'ubbwu'},
+      {sub:'Lifting',items:UBB_LIFT,group:'ubblift'},
+    ]);
+  } else if(d===5){
+    h+=section('Morning — long run','sh-run',[{sub:'Pre-run warm-up',items:RUN_WU,group:'runwu'}]);
+    h+=`<div class="section"><div class="section-hdr sh-run">Pick your run phase</div>`;
+    SAT_RUN.forEach((t,i)=>h+=cItem(t,kid(d,'run',i),true));
+    h+=`</div>`;
+    h+=section('Evening mobility','sh-mob',[{items:MOB,group:'mob'}]);
+  } else if(d===6){
+    h+=section('Morning mobility','sh-mob',[{items:MOB,group:'mob'}]);
+    h+=`<div class="section"><div class="section-hdr sh-rest">Rest of day</div>`;
+    h+=cItem('Full rest — no training',kid(d,'rest',0));
+    h+=`</div>`;
+  }
+
+  h+=`<div class="section"><div class="section-hdr sh-check">Daily self-check</div>`;
+  SELF_CHECK.forEach(({label,key})=>{
+    const k=sk(d,key);const val=scoreVal(k);
+    h+=`<div class="score-row"><div class="score-label">${label} <span style="color:#8e8e93;font-weight:400;font-size:13px;">${val!==null?val+'/10':'—'}</span></div><div class="score-btns">`;
+    for(let n=1;n<=10;n++){
+      const sel=val===n;
+      const cls=sel?(n<=4?'sel-ok':n<=7?'sel-warn':'sel-bad'):'';
+      h+=`<button class="score-btn ${cls}" onclick="setScore('${k}',${n})">${n}</button>`;
+    }
+    h+=`</div></div>`;
+  });
+  h+=`</div>`;
+
+  h+=`<button class="reset-btn" onclick="resetDay()">Reset today's ticks</button>`;
+  document.getElementById('content').innerHTML=h;
+}
+
+function resetDay(){
+  if(!confirm("Reset all ticks for "+DAYS[cur]+"?"))return;
+  getDayIds(cur).forEach(id=>localStorage.removeItem(id));
+  SELF_CHECK.forEach(({key})=>localStorage.removeItem(sk(cur,key)));
+  render();renderNav();
+}
+
+document.getElementById('hdrDate').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+renderNav();
+render();
+</script>
+</body>
+</html>
